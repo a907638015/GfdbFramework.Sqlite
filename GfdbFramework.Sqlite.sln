@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31313.79
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GfdbFramework.Sqlite", "GfdbFramework.Sqlite\GfdbFramework.Sqlite.csproj", "{1E329102-9D3B-4C41-9D9B-45ABE6E64547}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GfdbFramework.Sqlite.Test", "GfdbFramework.Sqlite.Test\GfdbFramework.Sqlite.Test.csproj", "{6E62999C-D8A1-4229-A061-F4F90BB79D59}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1E329102-9D3B-4C41-9D9B-45ABE6E64547}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E329102-9D3B-4C41-9D9B-45ABE6E64547}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E329102-9D3B-4C41-9D9B-45ABE6E64547}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E329102-9D3B-4C41-9D9B-45ABE6E64547}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E62999C-D8A1-4229-A061-F4F90BB79D59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E62999C-D8A1-4229-A061-F4F90BB79D59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E62999C-D8A1-4229-A061-F4F90BB79D59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E62999C-D8A1-4229-A061-F4F90BB79D59}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E3F78D00-F681-448B-81F6-8A8226112DE4}
+	EndGlobalSection
+EndGlobal
