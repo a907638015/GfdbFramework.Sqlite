@@ -29,7 +29,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="GfdbFramework" Version="1.2.4-bate5" />
+		<PackageReference Include="GfdbFramework" Version="1.2.4-bate6" />
 		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.116" />
 	</ItemGroup>
 
