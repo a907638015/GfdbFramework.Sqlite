@@ -1407,10 +1407,10 @@ namespace GfdbFramework.Sqlite
         }
 
         /// <summary>
-        /// 使用指定的原始数据源信息生成创建该数据表或视图的 T-Sql 语句。
+        /// 使用指定的原始数据源信息生成创建该数据表或视图的 Sql 语句。
         /// </summary>
-        /// <param name="dataSource">待生成创建 T-Sql 语句的数据源信息。</param>
-        /// <returns>生成好用于创建该数据表或视图的 T-Sql 语句。</returns>
+        /// <param name="dataSource">待生成创建 Sql 语句的数据源信息。</param>
+        /// <returns>生成好用于创建该数据表或视图的 Sql 语句。</returns>
         internal string GenerateCreateTableSql(OriginalDataSource dataSource)
         {
             StringBuilder fields = new StringBuilder();
@@ -1522,6 +1522,15 @@ namespace GfdbFramework.Sqlite
                 createSql.AppendFormat("{0}{1}", Environment.NewLine, indices);
 
             return createSql.ToString();
+        }
+
+        /// <summary>
+        /// 生成一个用于查询所有已存在数据表的 Sql 语句。
+        /// </summary>
+        /// <returns>创建好用于查询所有已存在数据表的 Sql 语句。</returns>
+        internal string GenerateQueryAllTableSql()
+        {
+            return "select name from sqlite_master where type = 'table' and name != 'sqlite_sequence'";
         }
     }
 }
