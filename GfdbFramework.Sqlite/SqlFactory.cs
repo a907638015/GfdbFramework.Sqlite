@@ -16,7 +16,7 @@ using GfdbFramework.Interface;
 namespace GfdbFramework.Sqlite
 {
     /// <summary>
-    /// SqlServer 数据库的 Sql 创建工厂类。
+    /// Sqlite 数据库的 Sql 创建工厂类。
     /// </summary>
     public class SqlFactory : ISqlFactory
     {
@@ -429,7 +429,7 @@ namespace GfdbFramework.Sqlite
                     sql = $"{leftSql} - {rightSql}";
                     break;
                 case OperationType.ArrayIndex:
-                    throw new Exception("Sql Server 不支持数组或集合类型的字段操作");
+                    throw new Exception("Sqlite 不支持数组或集合类型的字段操作");
             }
 
             return new ExpressionInfo(sql, useType);
@@ -466,7 +466,7 @@ namespace GfdbFramework.Sqlite
         /// <returns>生成好的表示 Sql 信息。</returns>
         public ExpressionInfo InitConstantField(IDataContext dataContext, DataSource.DataSource dataSource, ConstantField field, Func<object, string> addParameter)
         {
-            //只有基础数据类型才能作为参数传入 Sql Server
+            //只有基础数据类型才能作为参数传入 Sqlite
             if (Helper.CheckIsBasicType(field.DataType))
                 return new ExpressionInfo(addParameter(field.Value), OperationType.Default);
             else if (field.Value is Queryable)
@@ -825,7 +825,7 @@ namespace GfdbFramework.Sqlite
                                 if (field.Parameters.Count == 1 && field.Parameters[0] is BasicField formatField)
                                 {
                                     if (formatField.DataType.FullName != _STRING_TYPE_NAME)
-                                        throw new Exception("Sql Server 日期格式化只支持固定的字符串格式参数");
+                                        throw new Exception("Sqlite 日期格式化只支持字符串格式的参数");
 
                                     if (field.Type == FieldType.Constant)
                                     {

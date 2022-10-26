@@ -4,7 +4,7 @@ using GfdbFramework.Interface;
 namespace GfdbFramework.Sqlite
 {
     /// <summary>
-    /// SqlServer 数据库的数据操作上下文类。
+    /// Sqlite 数据库的数据操作上下文类。
     /// </summary>
     public class DataContext : Realize.DataContext
     {
@@ -74,7 +74,7 @@ namespace GfdbFramework.Sqlite
                 {
                     System.Collections.Generic.List<string> result = null;
 
-                    ((IDataContext)this).DatabaseOperation.ExecuteReader(((SqlFactory)SqlFactory).GenerateQueryAllTableSql(), dr =>
+                    ((IDataContext)this).DatabaseOperation.ExecuteReader(((SqlFactory)((IDataContext)this).SqlFactory).GenerateQueryAllTableSql(), dr =>
                     {
                         if (result == null)
                             result = new System.Collections.Generic.List<string>();

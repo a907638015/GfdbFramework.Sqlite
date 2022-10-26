@@ -14,7 +14,7 @@ using GfdbFramework.Interface;
 namespace GfdbFramework.Sqlite
 {
     /// <summary>
-    /// Sql Server 数据库操作类。
+    /// Sqlite 数据库操作类。
     /// </summary>
     public class DatabaseOperation : IDatabaseOperation
     {
@@ -31,7 +31,7 @@ namespace GfdbFramework.Sqlite
         public DatabaseOperation(string connectionString)
         {
             if (string.IsNullOrWhiteSpace(connectionString))
-                throw new Exception(string.Format("初始化一个 GfdbFramework.SqlServer.DatabaseOperation 对象时，参数 {0} 不能为空或纯空白字符串", nameof(connectionString)));
+                throw new Exception(string.Format("初始化一个 GfdbFramework.Sqlite.DatabaseOperation 对象时，参数 {0} 不能为空或纯空白字符串", nameof(connectionString)));
 
             _ConnectionString = connectionString;
         }
