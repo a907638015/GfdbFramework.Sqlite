@@ -102,12 +102,18 @@ namespace GfdbFramework.Sqlite
             {
                 case "System.Int16":
                     return "int16";
+                case "System.UInt16":
+                    return "uint16";
                 case "System.Int32":
                     return "int32";
+                case "System.UInt32":
+                    return "uint32";
                 case "System.Int64":
                 case "System.DateTimeOffset":
                 case "System.TimeSpan":
                     return "int64";
+                case "System.UInt64":
+                    return "uint64";
                 case "System.DateTime":
                     return "datetime";
                 case "System.Guid":
@@ -121,6 +127,8 @@ namespace GfdbFramework.Sqlite
                     return "boolean";
                 case "System.SByte":
                     return "int8";
+                case "System.Byte":
+                    return "uint8";
                 case "System.String":
                     return "varchar(255)";
             }
