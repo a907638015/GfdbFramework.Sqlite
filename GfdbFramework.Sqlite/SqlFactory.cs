@@ -404,7 +404,7 @@ namespace GfdbFramework.Sqlite
                 case OperationType.NotLike:
                 case OperationType.AndAlso:
                 case OperationType.OrElse:
-                    return field.BooleanInfo;
+                    return new ExpressionInfo($"cast({field.BooleanInfo.SQL} as boolean)", OperationType.Call);
                 case OperationType.LeftShift:
                     sql = $"{leftSql} << {rightSql})";
                     break;
@@ -781,7 +781,7 @@ namespace GfdbFramework.Sqlite
                         //StartsWith 或 Contains 方法，不支持多参数的 StartsWith 或 Contains 方法
                         else if ((field.MethodInfo.Name == "StartsWith" || field.MethodInfo.Name == "Contains") && field.Parameters != null && field.Parameters.Count == 1)
                         {
-                            return field.BooleanInfo;
+                            return new ExpressionInfo($"cast({field.BooleanInfo.SQL} as boolean)", OperationType.Call);
                         }
                         //Insert 或 Replace 方法
                         else if ((field.MethodInfo.Name == "Insert" || field.MethodInfo.Name == "Replace") && field.Parameters != null && field.Parameters.Count == 2 && field.Parameters[0] is BasicField && field.Parameters[1] is BasicField)
@@ -1192,7 +1192,7 @@ namespace GfdbFramework.Sqlite
             {
                 if (field.DataType.FullName == _BOOL_TYPE_NAME)
                 {
-                    return field.BooleanInfo;
+                    return new ExpressionInfo($"cast({field.BooleanInfo.SQL} as boolean)", OperationType.Call);
                 }
                 else
                 {
