@@ -1603,5 +1603,12 @@ namespace GfdbFramework.Sqlite
         {
             return "select name from sqlite_master where type = 'table' and name != 'sqlite_sequence'";
         }
+
+        /// <summary>
+        /// 释放当前对象所占用的资源信息。
+        /// </summary>
+        public void Dispose()
+        {
+        }
     }
 }
