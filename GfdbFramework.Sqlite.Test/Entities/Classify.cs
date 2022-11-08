@@ -26,6 +26,6 @@ namespace GfdbFramework.Sqlite.Test.Entities
         /// 获取或设置该分类的上级分类主键值。
         /// </summary>
         [Field(SimpleIndex = Enum.SortType.Ascending)]
-        public int ParentID { get; set; }
+        public int? ParentID { get; set; }
     }
 }

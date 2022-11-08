@@ -13,7 +13,7 @@ namespace GfdbFramework.Sqlite.Test.Entities
         /// <summary>
         /// 获取或设置该数据的主键值。
         /// </summary>
-        [Field(IsAutoincrement = true, IsPrimaryKey = true)]
+        [Field(IsAutoincrement = true, IsPrimaryKey = true, DataType = "integer")]
         public int ID { get; set; }
 
         /// <summary>

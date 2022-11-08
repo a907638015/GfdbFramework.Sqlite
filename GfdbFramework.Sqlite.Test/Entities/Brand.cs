@@ -26,6 +26,6 @@ namespace GfdbFramework.Sqlite.Test.Entities
         /// 获取或设置该商品品牌的上级品牌主键值。
         /// </summary>
         [Field(SimpleIndex = Enum.SortType.Ascending)]
-        public int ParentID { get; set; }
+        public int? ParentID { get; set; }
     }
 }

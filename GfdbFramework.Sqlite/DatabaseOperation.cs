@@ -107,7 +107,6 @@ namespace GfdbFramework.Sqlite
             }
             catch (Exception)
             {
-
                 throw;
             }
             finally
