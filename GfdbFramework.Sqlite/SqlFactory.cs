@@ -620,6 +620,20 @@ namespace GfdbFramework.Sqlite
                     else
                         return new ExpressionInfo($"instr({objectSql}, {searchString}) {checkString} 1", OperationType.Call);
                 }
+                //string 静态的 IsNullOrEmpty 或 IsNullOrWhiteSpace 方法
+                else if (methodField.ObjectField == null && methodField.Parameters != null && methodField.Parameters.Count == 1 && methodField.Parameters[0].DataType.FullName == _STRING_TYPE_NAME && methodField.Parameters[0] is BasicField && (methodField.MethodInfo.Name == "IsNullOrEmpty" || methodField.MethodInfo.Name == "IsNullOrWhiteSpace") && field.DataType.FullName == _STRING_TYPE_NAME)
+                {
+                    parameter = (BasicField)methodField.Parameters[0];
+
+                    parameter.InitExpressionSQL(dataContext, dataSource, addParameter);
+
+                    string parameterString = parameter.Type == FieldType.Subquery ? $"({parameter.ExpressionInfo.SQL})" : parameter.ExpressionInfo.SQL;
+
+                    if (methodField.MethodInfo.Name == "IsNullOrEmpty")
+                        return new ExpressionInfo($"{parameterString} is null or {parameterString} = ''", OperationType.Or);
+                    else
+                        return new ExpressionInfo($"{parameterString} is null or trim({parameterString}) = ''", OperationType.Or);
+                }
             }
 
             field.InitExpressionSQL(dataContext, dataSource, false, addParameter);
@@ -1132,6 +1146,11 @@ namespace GfdbFramework.Sqlite
 
                     return new ExpressionInfo($"cast({parameterSql} as int8)", OperationType.Call);
                 }
+            }
+            //字符串静态 IsNullOrEmpty 或 IsNullOrWhiteSpace 方法
+            else if (field.Parameters != null && field.Parameters.Count == 1 && field.Parameters[0].DataType.FullName == _STRING_TYPE_NAME && field.Parameters[0] is BasicField basicField && (field.MethodInfo.Name == "IsNullOrEmpty" || field.MethodInfo.Name == "IsNullOrWhiteSpace") && field.DataType.FullName == _STRING_TYPE_NAME)
+            {
+                return new ExpressionInfo($"cast({field.BooleanInfo.SQL} as boolean)", OperationType.Call);
             }
 
             throw new Exception($"未能将调用 {field.MethodInfo.DeclaringType.FullName} 类中的 {field.MethodInfo.Name} 方法字段转换成 Sql 表示信息");
