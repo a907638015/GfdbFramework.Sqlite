@@ -563,12 +563,20 @@ namespace GfdbFramework.Sqlite
                             switch (binaryField.OperationType)
                             {
                                 case OperationType.Equal:
-                                    if (!dataContext.IsCaseSensitive && binaryField.Left.DataType.FullName == _STRING_TYPE_NAME && binaryField.Right.DataType.FullName == _STRING_TYPE_NAME)
+                                    if (binaryField.Left.Type == FieldType.Constant && ((ConstantField)binaryField.Left).Value == null)
+                                        return new ExpressionInfo($"{rightSql} is null", OperationType.Equal);
+                                    else if (binaryField.Right.Type == FieldType.Constant && ((ConstantField)binaryField.Right).Value == null)
+                                        return new ExpressionInfo($"{leftSql} is null", OperationType.Equal);
+                                    else if (!dataContext.IsCaseSensitive && binaryField.Left.DataType.FullName == _STRING_TYPE_NAME && binaryField.Right.DataType.FullName == _STRING_TYPE_NAME)
                                         return new ExpressionInfo($"{leftSql} {_CASE_SENSITIVE_MARK} = {rightSql}", OperationType.Equal);
                                     else
                                         return new ExpressionInfo($"{leftSql} = {rightSql}", OperationType.Equal);
                                 case OperationType.NotEqual:
-                                    if (!dataContext.IsCaseSensitive && binaryField.Left.DataType.FullName == _STRING_TYPE_NAME && binaryField.Right.DataType.FullName == _STRING_TYPE_NAME)
+                                    if (binaryField.Left.Type == FieldType.Constant && ((ConstantField)binaryField.Left).Value == null)
+                                        return new ExpressionInfo($"{rightSql} is not null", OperationType.NotEqual);
+                                    else if (binaryField.Right.Type == FieldType.Constant && ((ConstantField)binaryField.Right).Value == null)
+                                        return new ExpressionInfo($"{leftSql} is not null", OperationType.NotEqual);
+                                    else if (!dataContext.IsCaseSensitive && binaryField.Left.DataType.FullName == _STRING_TYPE_NAME && binaryField.Right.DataType.FullName == _STRING_TYPE_NAME)
                                         return new ExpressionInfo($"{leftSql} {_CASE_SENSITIVE_MARK} != {rightSql}", OperationType.Equal);
                                     else
                                         return new ExpressionInfo($"{leftSql} != {rightSql}", OperationType.NotEqual);
