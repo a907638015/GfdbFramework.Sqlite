@@ -106,6 +106,8 @@ namespace GfdbFramework.Sqlite
 
             string sql = GenerateQuerySql(dataContext, dataSource, dataSource.SelectField ?? dataSource.RootField, useFieldAlias, item =>
             {
+                item = item ?? DBNull.Value;
+
                 if (!pars.TryGetValue(item, out DbParameter dbParameter))
                 {
                     dbParameter = new SQLiteParameter($"P{pars.Count}", item);
@@ -1371,6 +1373,8 @@ namespace GfdbFramework.Sqlite
 
             string addParameterFun(object item)
             {
+                item = item ?? DBNull.Value;
+
                 if (!pars.TryGetValue(item, out DbParameter dbParameter))
                 {
                     dbParameter = new SQLiteParameter($"P{pars.Count}", item);
@@ -1448,6 +1452,8 @@ namespace GfdbFramework.Sqlite
 
                 where?.InitExpressionSQL(dataContext, fromSource, item =>
                 {
+                    item = item ?? DBNull.Value;
+
                     if (!pars.TryGetValue(item, out DbParameter dbParameter))
                     {
                         dbParameter = new SQLiteParameter($"P{pars.Count}", item);
@@ -1490,6 +1496,8 @@ namespace GfdbFramework.Sqlite
 
             string addParameterFun(object item)
             {
+                item = item ?? DBNull.Value;
+
                 if (!pars.TryGetValue(item, out DbParameter dbParameter))
                 {
                     dbParameter = new SQLiteParameter($"P{pars.Count}", item);
