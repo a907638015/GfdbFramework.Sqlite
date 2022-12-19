@@ -624,9 +624,9 @@ namespace GfdbFramework.Sqlite
                             string parameterString = parameter.Type == FieldType.Subquery ? $"({parameter.ExpressionInfo.SQL})" : parameter.ExpressionInfo.SQL;
 
                             if (operandMethodField.MethodInfo.Name == "IsNullOrEmpty")
-                                return new ExpressionInfo($"{parameterString} is not null and {parameterString} != ''", OperationType.And);
+                                return new ExpressionInfo($"{parameterString} is not null and {parameterString} != ''", OperationType.AndAlso);
                             else
-                                return new ExpressionInfo($"{parameterString} is not null and trim({parameterString}) != ''", OperationType.And);
+                                return new ExpressionInfo($"{parameterString} is not null and trim({parameterString}) != ''", OperationType.AndAlso);
                         }
                         //对 string  类型的 StartsWith 或 Contains 方法取反时做特殊操作
                         else if (operandMethodField.ObjectField != null && operandMethodField.ObjectField is BasicField basicField && (operandMethodField.MethodInfo.Name == "StartsWith" || operandMethodField.MethodInfo.Name == "Contains"))
@@ -681,9 +681,9 @@ namespace GfdbFramework.Sqlite
                     string parameterString = parameter.Type == FieldType.Subquery ? $"({parameter.ExpressionInfo.SQL})" : parameter.ExpressionInfo.SQL;
 
                     if (methodField.MethodInfo.Name == "IsNullOrEmpty")
-                        return new ExpressionInfo($"{parameterString} is null or {parameterString} = ''", OperationType.Or);
+                        return new ExpressionInfo($"{parameterString} is null or {parameterString} = ''", OperationType.OrElse);
                     else
-                        return new ExpressionInfo($"{parameterString} is null or trim({parameterString}) = ''", OperationType.Or);
+                        return new ExpressionInfo($"{parameterString} is null or trim({parameterString}) = ''", OperationType.OrElse);
                 }
             }
 
