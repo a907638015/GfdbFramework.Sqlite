@@ -9,7 +9,7 @@ using System.Text;
 namespace GfdbFramework.Sqlite
 {
     /// <summary>
-    /// Sql Server 数据库实现参数化操作的上下文对象类。
+    /// Sqlite 数据库实现参数化操作的上下文对象类。
     /// </summary>
     internal class ParameterContext : IParameterContext
     {
