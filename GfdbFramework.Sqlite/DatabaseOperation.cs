@@ -20,7 +20,7 @@ namespace GfdbFramework.Sqlite
     {
         private readonly string _ConnectionString = null;
         private SQLiteConnection _Connection = null;
-        private ConnectionOpenedMode _OpenedMode = ConnectionOpenedMode.Auto;
+        private OpenedMode _OpenedMode = OpenedMode.Auto;
         private SQLiteCommand _Command = null;
         private SQLiteTransaction _Transaction = null;
 
@@ -39,7 +39,7 @@ namespace GfdbFramework.Sqlite
         /// <summary>
         /// 获取当前对象中的数据库连接打开方式。
         /// </summary>
-        public ConnectionOpenedMode OpenedMode
+        public OpenedMode OpenedMode
         {
             get
             {
@@ -48,21 +48,21 @@ namespace GfdbFramework.Sqlite
         }
 
         /// <summary>
-        /// 执行指定的命令语句并返回执行该语句所受影响的数据行数。
+        /// 执行指定的 Sql 语句并返回执行该语句所受影响的数据行数。
         /// </summary>
-        /// <param name="commandText">待执行的命令语句。</param>
-        /// <param name="commandType">待执行语句的命令类型。</param>
+        /// <param name="sql">待执行的 Sql 语句。</param>
+        /// <param name="sqlType">待执行语句的命令类型。</param>
         /// <param name="parameters">执行该命令语句所需的参数集合。</param>
         /// <param name="ignoreAutoincrementValue">是否忽略自增长字段的值。</param>
-        /// <param name="autoincrementValue">执行插入数据命令时插入自动增长字段的值。</param>
-        /// <returns>执行 <paramref name="commandText"/> 参数对应语句所影响的数据行数。</returns>
-        private int ExecuteNonQuery(string commandText, CommandType commandType, Interface.IReadOnlyList<DbParameter> parameters, bool ignoreAutoincrementValue, out long autoincrementValue)
+        /// <param name="autoincrementValue">执行插入数据命令时最后一条插入语句所插入的自动增长字段值。</param>
+        /// <returns>执行 <paramref name="sql"/> 参数对应语句所影响的数据行数。</returns>
+        private int ExecuteNonQuery(string sql, CommandType sqlType, ReadOnlyList<DbParameter> parameters, bool ignoreAutoincrementValue, out long autoincrementValue)
         {
             autoincrementValue = default;
 
-            OpenConnection(ConnectionOpenedMode.Auto);
+            OpenConnection(OpenedMode.Auto);
 
-            InitCommand(commandText, commandType, parameters);
+            InitCommand(sql, sqlType, parameters);
 
             try
             {
@@ -75,7 +75,7 @@ namespace GfdbFramework.Sqlite
                     object value = _Command.ExecuteScalar();
 
                     if (value == null || value == DBNull.Value)
-                        throw new Exception(string.Format("在执行指定命令后未能获取到自增字段的值，具体命令为：{0}", commandText));
+                        throw new Exception(string.Format("在执行指定命令后未能获取到自增字段的值，具体命令为：{0}", sql));
 
                     if (value is int intValue)
                         autoincrementValue = intValue;
@@ -100,7 +100,7 @@ namespace GfdbFramework.Sqlite
                     else if (value is float floatValue)
                         autoincrementValue = (long)floatValue;
                     else
-                        throw new Exception(string.Format("在执行指定命令后获取到自增字段的值类型不正确，具体命令为：{0}，获取到的自增字段值为：{1}", commandText, value));
+                        throw new Exception(string.Format("在执行指定命令后获取到自增字段的值类型不正确，具体命令为：{0}，获取到的自增字段值为：{1}", sql, value));
                 }
 
                 return result;
@@ -111,89 +111,47 @@ namespace GfdbFramework.Sqlite
             }
             finally
             {
-                CloseConnection(ConnectionOpenedMode.Auto);
+                CloseConnection(OpenedMode.Auto);
             }
         }
 
         /// <summary>
-        /// 执行指定的命令语句并返回执行该语句所受影响的数据行数。
+        /// 执行指定的 Sql 语句并返回执行该语句所受影响的数据行数。
         /// </summary>
-        /// <param name="commandText">待执行的命令语句。</param>
-        /// <param name="commandType">待执行语句的命令类型。</param>
+        /// <param name="sql">待执行的 Sql 语句。</param>
+        /// <param name="sqlType">待执行语句的命令类型。</param>
         /// <param name="parameters">执行该命令语句所需的参数集合。</param>
-        /// <param name="autoincrementValue">执行插入数据命令时插入自动增长字段的值。</param>
-        /// <returns>执行 <paramref name="commandText"/> 参数对应语句所影响的数据行数。</returns>
-        public int ExecuteNonQuery(string commandText, CommandType commandType, Interface.IReadOnlyList<DbParameter> parameters, out long autoincrementValue)
+        /// <param name="autoincrementValue">执行插入数据命令时最后一条插入语句所插入的自动增长字段值。</param>
+        /// <returns>执行 <paramref name="sql"/> 参数对应语句所影响的数据行数。</returns>
+        public int ExecuteNonQuery(string sql, CommandType sqlType, ReadOnlyList<DbParameter> parameters, out long autoincrementValue)
         {
-            return ExecuteNonQuery(commandText, commandType, parameters, false, out autoincrementValue);
-        }
-
-        /// <summary>
-        /// 执行指定的命令语句并返回执行该语句所受影响的数据行数。
-        /// </summary>
-        /// <param name="commandText">待执行的命令语句。</param>
-        /// <param name="commandType">待执行语句的命令类型。</param>
-        /// <param name="parameters">执行该命令语句所需的参数集合。</param>
-        /// <returns>执行 <paramref name="commandText"/> 参数对应语句所影响的数据行数。</returns>
-        public int ExecuteNonQuery(string commandText, CommandType commandType, Interface.IReadOnlyList<DbParameter> parameters)
-        {
-            return ExecuteNonQuery(commandText, commandType, parameters, true, out _);
+            return ExecuteNonQuery(sql, sqlType, parameters, false, out autoincrementValue);
         }
 
         /// <summary>
         /// 执行指定的 Sql 语句并返回执行该语句所受影响的数据行数。
         /// </summary>
         /// <param name="sql">待执行的 Sql 语句。</param>
-        /// <param name="parameters">执行该 Sql 语句所需的参数集合。</param>
-        /// <returns>执行 <paramref name="sql"/> 参数对应 Sql 语句所影响的数据行数。</returns>
-        public int ExecuteNonQuery(string sql, Interface.IReadOnlyList<DbParameter> parameters)
+        /// <param name="sqlType">待执行语句的命令类型。</param>
+        /// <param name="parameters">执行该命令语句所需的参数集合。</param>
+        /// <returns>执行 <paramref name="sql"/> 参数对应语句所影响的数据行数。</returns>
+        public int ExecuteNonQuery(string sql, CommandType sqlType, ReadOnlyList<DbParameter> parameters)
         {
-            return ExecuteNonQuery(sql, CommandType.Text, parameters);
-        }
-
-        /// <summary>
-        /// 执行指定的 Sql 语句并返回执行该语句所受影响的数据行数。
-        /// </summary>
-        /// <param name="sql">待执行的 Sql 语句。</param>
-        /// <returns>执行 <paramref name="sql"/> 参数对应 Sql 语句所影响的数据行数。</returns>
-        public int ExecuteNonQuery(string sql)
-        {
-            return ExecuteNonQuery(sql, null);
+            return ExecuteNonQuery(sql, sqlType, parameters, true, out _);
         }
 
         /// <summary>
         /// 执行指定的 Sql 语句并返回结果集中的第一行第一列值返回。
         /// </summary>
         /// <param name="sql">待执行的 Sql 语句。</param>
-        /// <returns>执行该 Sql 得到的结果集中第一行第一列的值。</returns>
-        public object ExecuteScalar(string sql)
-        {
-            return ExecuteScalar(sql, null);
-        }
-
-        /// <summary>
-        /// 执行指定的 Sql 语句并返回结果集中的第一行第一列值返回。
-        /// </summary>
-        /// <param name="sql">待执行的 Sql 语句。</param>
-        /// <param name="parameters">执行该 Sql 语句所需的参数集合。</param>
-        /// <returns>执行该 Sql 得到的结果集中第一行第一列的值。</returns>
-        public object ExecuteScalar(string sql, Interface.IReadOnlyList<DbParameter> parameters)
-        {
-            return ExecuteScalar(sql, CommandType.Text, parameters);
-        }
-
-        /// <summary>
-        /// 执行指定命令语句并返回结果集中的第一行第一列值返回。
-        /// </summary>
-        /// <param name="commandText">待执行的命令语句。</param>
-        /// <param name="commandType">待执行语句的命令类型。</param>
+        /// <param name="sqlType">待执行语句的命令类型。</param>
         /// <param name="parameters">执行该命令所需的参数集合。</param>
-        /// <returns>执行该命令得到的结果集中第一行第一列的值。</returns>
-        public object ExecuteScalar(string commandText, CommandType commandType, Interface.IReadOnlyList<DbParameter> parameters)
+        /// <returns>执行 <paramref name="sql"/> 参数对应语句得到的结果集中第一行第一列的值。</returns>
+        public object ExecuteScalar(string sql, CommandType sqlType, ReadOnlyList<DbParameter> parameters)
         {
-            OpenConnection(ConnectionOpenedMode.Auto);
+            OpenConnection(OpenedMode.Auto);
 
-            InitCommand(commandText, commandType, parameters);
+            InitCommand(sql, sqlType, parameters);
 
             try
             {
@@ -205,43 +163,22 @@ namespace GfdbFramework.Sqlite
             }
             finally
             {
-                CloseConnection(ConnectionOpenedMode.Auto);
+                CloseConnection(OpenedMode.Auto);
             }
-        }
-
-        /// <summary>
-        /// 执行指定的 Sql 语句并将结果集中每一行数据转交与处理函数处理。
-        /// </summary>
-        /// <param name="sql">待执行的 Sql 语句。</param>
-        /// <param name="readerHandler">处理结果集中每一行数据的处理函数（若该函数返回 false 则忽略后续的数据行不再回调此处理函数）。</param>
-        public void ExecuteReader(string sql, Func<DbDataReader, bool> readerHandler)
-        {
-            ExecuteReader(sql, null, readerHandler);
-        }
-
-        /// <summary>
-        /// 执行指定的 Sql 语句并将结果集中每一行数据转交与处理函数处理。
-        /// </summary>
-        /// <param name="sql">待执行的 Sql 语句。</param>
-        /// <param name="parameters">执行该 Sql 语句所需的参数集合。</param>
-        /// <param name="readerHandler">处理结果集中每一行数据的处理函数（若该函数返回 false 则忽略后续的数据行不再回调此处理函数）。</param>
-        public void ExecuteReader(string sql, Interface.IReadOnlyList<DbParameter> parameters, Func<DbDataReader, bool> readerHandler)
-        {
-            ExecuteReader(sql, CommandType.Text, parameters, readerHandler);
         }
 
         /// <summary>
         /// 执行指定命令语句并将结果集中每一行数据转交与处理函数处理。
         /// </summary>
-        /// <param name="commandText">待执行的命令语句。</param>
-        /// <param name="commandType">待执行语句的命令类型。</param>
+        /// <param name="sql">待执行的 Sql 语句。</param>
+        /// <param name="sqlType">待执行语句的命令类型。</param>
         /// <param name="parameters">执行该命令语句所需的参数集合。</param>
         /// <param name="readerHandler">处理结果集中每一行数据的处理函数（若该函数返回 false 则忽略后续的数据行不再回调此处理函数）。</param>
-        public void ExecuteReader(string commandText, CommandType commandType, Interface.IReadOnlyList<DbParameter> parameters, Func<DbDataReader, bool> readerHandler)
+        public void ExecuteReader(string sql, CommandType sqlType, ReadOnlyList<DbParameter> parameters, Func<DbDataReader, bool> readerHandler)
         {
-            OpenConnection(ConnectionOpenedMode.Auto);
+            OpenConnection(OpenedMode.Auto);
 
-            InitCommand(commandText, commandType, parameters);
+            InitCommand(sql, sqlType, parameters);
 
             try
             {
@@ -257,93 +194,8 @@ namespace GfdbFramework.Sqlite
             }
             finally
             {
-                CloseConnection(ConnectionOpenedMode.Auto);
+                CloseConnection(OpenedMode.Auto);
             }
-        }
-
-        /// <summary>
-        /// 创建数据库（该操作为独立操作，不受上下文控制，即不受事务、数据库开关连接等操作影响）。
-        /// </summary>
-        /// <param name="databaseInfo">待创建数据库的信息。</param>
-        /// <returns>创建成功返回 true，否则返回 false。</returns>
-        public bool CreateDatabase(DatabaseInfo databaseInfo)
-        {
-            if (databaseInfo == null)
-                throw new ArgumentNullException(nameof(databaseInfo), "创建数据库时参数不能为 null");
-
-            if (databaseInfo.Files == null || databaseInfo.Files.Count < 1)
-            {
-                if (string.IsNullOrWhiteSpace(databaseInfo.Name))
-                    throw new ArgumentException("在不输入数据库保存文件地址创建数据库时数据库名称需要必填");
-
-                databaseInfo.Files = new List<Core.FileInfo>()
-                {
-                    new Core.FileInfo()
-                    {
-                        Path = Path.Combine(Path.GetDirectoryName(GetType().Assembly.Location), $"Databases\\{databaseInfo.Name}.db"),
-                        Type = FileType.Data
-                    }
-                };
-            }
-
-            if (databaseInfo.Files[0].Type != FileType.Data)
-                throw new Exception("Sqlite 创建数据库时数据库文件类型只能是 FileType.Data 类型");
-
-            if (!Directory.Exists(Path.GetDirectoryName(databaseInfo.Files[0].Path)))
-                Directory.CreateDirectory(Path.GetDirectoryName(databaseInfo.Files[0].Path));
-
-            SQLiteConnection.CreateFile(databaseInfo.Files[0].Path);
-
-            return true;
-        }
-
-        /// <summary>
-        /// 创建数据表。
-        /// </summary>
-        /// <param name="dataSource">带创建数据表对应的源信息。</param>
-        /// <returns>创建成功返回 true，否则返回 false。</returns>
-        public bool CreateTable(OriginalDataSource dataSource)
-        {
-            OpenConnection(ConnectionOpenedMode.Auto);
-
-            InitCommand(new SqlFactory().GenerateCreateTableSql(dataSource), CommandType.Text, null);
-
-            try
-            {
-                _Command.ExecuteNonQuery();
-
-                return true;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                CloseConnection(ConnectionOpenedMode.Auto);
-            }
-        }
-
-        /// <summary>
-        /// 校验指定的数据库是否存在。
-        /// </summary>
-        /// <param name="databaseName">需要确认是否存在的数据库名称。</param>
-        /// <returns>若该数据库已存在则返回 true，否则返回 false。</returns>
-        bool IDatabaseOperation.ExistsDatabase(string databaseName)
-        {
-            throw new NotSupportedException("对于 Sqlite 数据库而言并不支持判断数据库是否存在这个方法");
-        }
-
-        /// <summary>
-        /// 校验指定的数据表是否存在。
-        /// </summary>
-        /// <param name="tableName">需要确认是否存在的数据表名称。</param>
-        /// <returns>若该数据表已存在则返回 true，否则返回 false。</returns>
-        public bool ExistsTable(string tableName)
-        {
-            object result = ExecuteScalar($"select count(1) from sqlite_master where type = 'table' and name = @tableName", new Realize.ReadOnlyList<DbParameter>(new SQLiteParameter("tableName", tableName)));
-
-            return result != null && result != DBNull.Value && (int)result > 0;
         }
 
         /// <summary>
@@ -352,7 +204,7 @@ namespace GfdbFramework.Sqlite
         /// <returns>打开成功返回 true，否则返回 false。</returns>
         public bool OpenConnection()
         {
-            return OpenConnection(ConnectionOpenedMode.Manual);
+            return OpenConnection(OpenedMode.Manual);
         }
 
         /// <summary>
@@ -361,7 +213,7 @@ namespace GfdbFramework.Sqlite
         /// <returns>关闭成功返回 true，否则返回 false。</returns>
         public bool CloseConnection()
         {
-            return CloseConnection(ConnectionOpenedMode.Manual);
+            return CloseConnection(OpenedMode.Manual);
         }
 
         /// <summary>
@@ -370,7 +222,7 @@ namespace GfdbFramework.Sqlite
         /// <param name="commandText">待执行的命令语句。</param>
         /// <param name="commandType">待执行语句的命令类型。</param>
         /// <param name="parameters">执行该语句所需的参数集合。</param>
-        private void InitCommand(string commandText, CommandType commandType, Interface.IReadOnlyList<DbParameter> parameters)
+        private void InitCommand(string commandText, CommandType commandType, ReadOnlyList<DbParameter> parameters)
         {
             if (_Command == null)
                 _Command = new SQLiteCommand(commandText, _Connection, _Transaction);
@@ -394,7 +246,7 @@ namespace GfdbFramework.Sqlite
         /// </summary>
         /// <param name="openedMode">连接打开方式。</param>
         /// <returns>打开成功返回 true，否则返回 false。</returns>
-        public bool OpenConnection(ConnectionOpenedMode openedMode)
+        public bool OpenConnection(OpenedMode openedMode)
         {
             if (_Connection == null)
                 _Connection = new SQLiteConnection(_ConnectionString);
@@ -413,7 +265,7 @@ namespace GfdbFramework.Sqlite
         /// </summary>
         /// <param name="openedMode">允许关闭的连接打开模式。</param>
         /// <returns>关闭成功返回 true，否则返回 false。</returns>
-        public bool CloseConnection(ConnectionOpenedMode openedMode)
+        public bool CloseConnection(OpenedMode openedMode)
         {
             if (_Connection != null)
             {
@@ -422,7 +274,7 @@ namespace GfdbFramework.Sqlite
                     if (_Connection.State != ConnectionState.Closed)
                         _Connection.Close();
 
-                    _OpenedMode = ConnectionOpenedMode.Auto;
+                    _OpenedMode = OpenedMode.Auto;
 
                     return true;
                 }
@@ -438,7 +290,7 @@ namespace GfdbFramework.Sqlite
         /// </summary>
         public void BeginTransaction()
         {
-            OpenConnection(ConnectionOpenedMode.Transaction);
+            OpenConnection(OpenedMode.Transaction);
 
             _Transaction = _Connection.BeginTransaction();
         }
@@ -449,7 +301,7 @@ namespace GfdbFramework.Sqlite
         /// <param name="level">事务级别。</param>
         public void BeginTransaction(IsolationLevel level)
         {
-            OpenConnection(ConnectionOpenedMode.Transaction);
+            OpenConnection(OpenedMode.Transaction);
 
             _Transaction = _Connection.BeginTransaction(level);
         }
@@ -462,7 +314,7 @@ namespace GfdbFramework.Sqlite
             if (_Transaction != null)
                 _Transaction.Rollback();
 
-            CloseConnection(ConnectionOpenedMode.Transaction);
+            CloseConnection(OpenedMode.Transaction);
 
             _Transaction = null;
         }
@@ -475,7 +327,7 @@ namespace GfdbFramework.Sqlite
             if (_Transaction != null)
                 _Transaction.Commit();
 
-            CloseConnection(ConnectionOpenedMode.Transaction);
+            CloseConnection(OpenedMode.Transaction);
 
             _Transaction = null;
         }
@@ -515,18 +367,6 @@ namespace GfdbFramework.Sqlite
             _Transaction = null;
             _Command = null;
             _Connection = null;
-        }
-
-        /// <summary>
-        /// 删除指定的数据表。
-        /// </summary>
-        /// <param name="tableName">待删除的数据表名称。</param>
-        /// <returns>删除成功返回 true，否则返回 false。</returns>
-        public bool DeleteTable(string tableName)
-        {
-            ExecuteNonQuery($"drop table {tableName}");
-
-            return true;
         }
     }
 }

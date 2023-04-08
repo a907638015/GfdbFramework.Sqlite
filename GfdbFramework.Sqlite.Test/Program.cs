@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using GfdbFramework.Attribute;
 using GfdbFramework.Core;
-using GfdbFramework.Realize;
 
 namespace GfdbFramework.Sqlite.Test
 {
@@ -21,11 +20,11 @@ namespace GfdbFramework.Sqlite.Test
         {
             DataContext dataContext = new DataContext();
 
-            if (!File.Exists(Path.Combine(Path.GetDirectoryName(typeof(Program).Assembly.Location), "Databases\\TestDB.db")))
+            if (!dataContext.ExistsDatabase(new DatabaseInfo("TestDB")))
             {
                 Console.WriteLine($"{Environment.NewLine}----- 初始化数据库 ----{Environment.NewLine}");
 
-                //创建数据库（在测试时建议给当前程序目录添加 Everyone 的全部访问权限，不然极有可能报 拒绝访问 错误信息）
+                //创建数据库
                 dataContext.CreateDatabase(new DatabaseInfo("TestDB"));
 
                 //创建各种表
@@ -250,6 +249,24 @@ namespace GfdbFramework.Sqlite.Test
             foreach (var item in data2)
             {
                 Console.WriteLine($"商品名称：{item.Name}，分类：{item.Classify}，最大包装单位：{item.PackageUnit}，中包包装单位：{item.MiddleUnit}，零售包装单位：{ item.MinimumUnit}，品牌：{ item.Brand}");
+            }
+
+            //数据合并 union all（查询 ID 大于 1 的用户名以及 ID 大于 1 的商品名）
+            var data3 = dataContext.Users.Select(item => new
+            {
+                item.ID,
+                item.Name,
+                Type = "User"
+            }).Where(item => item.ID > 1).UnionAll(dataContext.Commodities.Select(item => new
+            {
+                item.ID,
+                item.Name,
+                Type = "Commodity"
+            }).Where(item => item.ID > 1));
+
+            foreach (var item in data3)
+            {
+                Console.WriteLine($"类型：{(item.Type == "User" ? "用户：" : "商品：")}{item.Name} ID:{item.ID}");
             }
         }
 

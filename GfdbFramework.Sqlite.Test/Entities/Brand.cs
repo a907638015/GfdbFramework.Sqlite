@@ -8,7 +8,7 @@ namespace GfdbFramework.Sqlite.Test.Entities
     /// <summary>
     /// 商品品牌实体类。
     /// </summary>
-    [Mapping("Brands")]
+    [Table("Brands")]
     public class Brand : BaseEntity
     {
         /// <summary>
@@ -19,7 +19,7 @@ namespace GfdbFramework.Sqlite.Test.Entities
         /// <summary>
         /// 获取或设置该商品品牌的唯一代码。
         /// </summary>
-        [Field(IsNullable = Enum.FieldNullableMode.NotNullable, SimpleIndex = Enum.SortType.Ascending)]
+        [Field(IsNullable = Enum.NullableMode.NotNullable, SimpleIndex = Enum.SortType.Ascending)]
         public string Code { get; set; }
 
         /// <summary>
