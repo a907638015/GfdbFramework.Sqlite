@@ -1678,7 +1678,6 @@ namespace GfdbFramework.Sqlite
                 StringBuilder groupBy = new StringBuilder();
                 string sqlFrom = GenerateFromSql(parameterContext, belongDataSource, false);
                 string sqlWhere = string.Empty;
-                string top = string.Empty;
                 string distinct = belongDataSource.IsDistinctly ? "distinct " : string.Empty;
                 string limit = string.Empty;
 
@@ -1734,7 +1733,7 @@ namespace GfdbFramework.Sqlite
                         limit = $" limit {belongDataSource.Limit.Value.Count} offset {belongDataSource.Limit.Value.Start}";
                 }
 
-                return $"select {distinct}{top}{sqlFields} from {sqlFrom}{sqlWhere}{groupBy}{orderBy}{limit}";
+                return $"select {distinct}{sqlFields} from {sqlFrom}{sqlWhere}{groupBy}{orderBy}{limit}";
             }
         }
 
