@@ -36,6 +36,8 @@ namespace GfdbFramework.Sqlite
         private readonly string _DBFunDiffMinuteMethodName = nameof(DBFun.DiffMinute);
         private readonly string _DBFunDiffSecondMethodName = nameof(DBFun.DiffSecond);
         private readonly string _DBFunDiffMillisecondMethodName = nameof(DBFun.DiffMillisecond);
+        private readonly string _DBFunAddYearMethodName = nameof(DBFun.AddYear);
+        private readonly string _DBFunAddMonthMethodName = nameof(DBFun.AddMonth);
         private readonly string _DBFunAddDayMethodName = nameof(DBFun.AddDay);
         private readonly string _DBFunAddHourMethodName = nameof(DBFun.AddHour);
         private readonly string _DBFunAddMinuteMethodName = nameof(DBFun.AddMinute);
@@ -753,7 +755,10 @@ namespace GfdbFramework.Sqlite
                 }
                 //DNFun 的各种日期添加函数
                 else if (field.Parameters != null && field.MethodInfo.ReturnType == _DateTimeType && field.Parameters.Count == 2 && field.Parameters[0].DataType == _DateTimeType && field.Parameters[1].DataType == _IntType &&
-                    (field.MethodInfo.Name == _DBFunAddDayMethodName
+                    (
+                    field.MethodInfo.Name == _DBFunAddYearMethodName
+                    || field.MethodInfo.Name == _DBFunAddMonthMethodName
+                    || field.MethodInfo.Name == _DBFunAddDayMethodName
                     || field.MethodInfo.Name == _DBFunAddHourMethodName
                     || field.MethodInfo.Name == _DBFunAddMinuteMethodName
                     || field.MethodInfo.Name == _DBFunAddSecondMethodName
@@ -765,20 +770,33 @@ namespace GfdbFramework.Sqlite
                     string objectSql = obj.Type == OperationType.Subquery ? $"({obj.SQL})" : obj.SQL;
                     string valueSql = value.Type == OperationType.Subquery ? $"({value.SQL})" : value.SQL;
 
-                    objectSql = $"cast(strftime('%s', {objectSql}) || substr(strftime('%f', {objectSql}), 4) as long)";
+                    if (field.MethodInfo.Name == _DBFunAddMillisecondMethodName)
+                    {
+                        objectSql = $"cast(strftime('%s', {objectSql}) || substr(strftime('%f', {objectSql}), 4) as long)";
 
-                    if (field.MethodInfo.Name == _DBFunAddDayMethodName)
-                        objectSql = $"{objectSql} + {valueSql} * 86400000";
-                    else if (field.MethodInfo.Name == _DBFunAddHourMethodName)
-                        objectSql = $"{objectSql} + {valueSql} * 3600000";
-                    else if (field.MethodInfo.Name == _DBFunAddMinuteMethodName)
-                        objectSql = $"{objectSql} + {valueSql} * 60000";
-                    else if (field.MethodInfo.Name == _DBFunAddSecondMethodName)
-                        objectSql = $"{objectSql} + {valueSql} * 1000";
-                    else
                         objectSql = $"{objectSql} + {valueSql}";
 
-                    return new ExpressionInfo($"datetime(({objectSql}) / 1000, 'unixepoch')", OperationType.Call);
+                        return new ExpressionInfo($"datetime(({objectSql}) / 1000, 'unixepoch')", OperationType.Call);
+                    }
+                    else
+                    {
+                        string type;
+
+                        if (field.MethodInfo.Name == _DBFunAddYearMethodName)
+                            type = "year";
+                        else if (field.MethodInfo.Name == _DBFunAddMonthMethodName)
+                            type = "month";
+                        else if (field.MethodInfo.Name == _DBFunAddDayMethodName)
+                            type = "day";
+                        else if (field.MethodInfo.Name == _DBFunAddHourMethodName)
+                            type = "hour";
+                        else if (field.MethodInfo.Name == _DBFunAddMinuteMethodName)
+                            type = "minute";
+                        else
+                            type = "second";
+
+                        return new ExpressionInfo($"datetime({objectSql}, {valueSql} || ' {type}')", OperationType.Call);
+                    }
                 }
             }
             //各种 Parse 方法
