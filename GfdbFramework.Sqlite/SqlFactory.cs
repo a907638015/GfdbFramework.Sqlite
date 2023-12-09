@@ -43,6 +43,7 @@ namespace GfdbFramework.Sqlite
         private readonly string _DBFunAddMinuteMethodName = nameof(DBFun.AddMinute);
         private readonly string _DBFunAddSecondMethodName = nameof(DBFun.AddSecond);
         private readonly string _DBFunAddMillisecondMethodName = nameof(DBFun.AddMillisecond);
+        private readonly Type _NullableType = typeof(int?).GetGenericTypeDefinition();
         private readonly Type _StringType = typeof(string);
         private readonly Type _BoolType = typeof(bool);
         private readonly Type _IntType = typeof(int);
@@ -723,7 +724,10 @@ namespace GfdbFramework.Sqlite
                     return new ExpressionInfo("random()", OperationType.Call);
                 }
                 //DBFun 的各种日期差值计算函数
-                else if (field.Parameters != null && field.MethodInfo.ReturnType == _IntType && field.Parameters.Count == 2 && field.Parameters[0].DataType == _DateTimeType && field.Parameters[1].DataType == _DateTimeType &&
+                else if (field.Parameters != null && field.MethodInfo.ReturnType == _IntType && field.Parameters.Count == 2
+                    && (field.Parameters[0].DataType == _DateTimeType || (field.Parameters[0].DataType.IsGenericType && field.Parameters[0].DataType.GetGenericTypeDefinition() == _NullableType && field.Parameters[0].DataType.GetGenericArguments()[0] == _DateTimeType))
+                    && (field.Parameters[1].DataType == _DateTimeType || (field.Parameters[1].DataType.IsGenericType && field.Parameters[1].DataType.GetGenericTypeDefinition() == _NullableType && field.Parameters[1].DataType.GetGenericArguments()[0] == _DateTimeType)) &&
+                    && field.Parameters[0].DataType == _DateTimeType && field.Parameters[1].DataType == _DateTimeType &&
                     (field.MethodInfo.Name == _DBFunDiffYearMethodName
                     || field.MethodInfo.Name == _DBFunDiffMonthMethodName
                     || field.MethodInfo.Name == _DBFunDiffDayMethodName
@@ -754,7 +758,9 @@ namespace GfdbFramework.Sqlite
                         return new ExpressionInfo($"cast(strftime('%s', {compareSql}) || substr(strftime('%f', {compareSql}), 4) as long) - cast(strftime('%s', {objectSql}) || substr(strftime('%f', {objectSql}), 4) as long)", OperationType.Subtract);
                 }
                 //DNFun 的各种日期添加函数
-                else if (field.Parameters != null && field.MethodInfo.ReturnType == _DateTimeType && field.Parameters.Count == 2 && field.Parameters[0].DataType == _DateTimeType && field.Parameters[1].DataType == _IntType &&
+                else if (field.Parameters != null && field.MethodInfo.ReturnType == _DateTimeType && field.Parameters.Count == 2
+                    && (field.Parameters[0].DataType == _DateTimeType || (field.Parameters[0].DataType.IsGenericType && field.Parameters[0].DataType.GetGenericTypeDefinition() == _NullableType && field.Parameters[0].DataType.GetGenericArguments()[0] == _DateTimeType))
+                    && field.Parameters[1].DataType == _IntType &&
                     (
                     field.MethodInfo.Name == _DBFunAddYearMethodName
                     || field.MethodInfo.Name == _DBFunAddMonthMethodName
